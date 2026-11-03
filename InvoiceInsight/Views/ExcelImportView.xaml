@@ -1,0 +1,628 @@
+﻿<UserControl x:Class="InvoiceInsight.Views.ExcelImportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="LeftToRight"
+             Background="#F5F3F9"
+             FontFamily="Segoe UI">
+
+    <UserControl.Resources>
+
+        <SolidColorBrush x:Key="PrimaryText" Color="#39334D"/>
+        <SolidColorBrush x:Key="SecondaryText" Color="#91899F"/>
+        <SolidColorBrush x:Key="Purple" Color="#65558F"/>
+        <SolidColorBrush x:Key="TableBorder" Color="#EEEAF3"/>
+
+        <!-- Table Header -->
+        <Style x:Key="TableHeaderStyle"
+               TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="Background" Value="#F8F6FB"/>
+            <Setter Property="Foreground" Value="#77718A"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12,15"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#EEEAF3"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Table Cell -->
+        <Style x:Key="TableCellStyle"
+               TargetType="{x:Type DataGridCell}">
+            <Setter Property="Foreground" Value="#39334D"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        </Style>
+
+        <!-- Normal Table Text -->
+        <Style x:Key="TableTextStyle"
+               TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="#39334D"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+
+        <!-- Table Row -->
+        <Style x:Key="TableRowStyle"
+               TargetType="{x:Type DataGridRow}">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#F0EDF4"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="MinHeight" Value="58"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+
+            <Style.Triggers>
+
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FAF8FD"/>
+                </Trigger>
+
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#F1EDF8"/>
+                </Trigger>
+
+            </Style.Triggers>
+        </Style>
+
+        <!-- Import Selection CheckBox -->
+        <Style x:Key="ImportCheckBoxStyle"
+               TargetType="{x:Type CheckBox}">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="IsEnabled" Value="{Binding CanImport}"/>
+        </Style>
+
+        <!-- Validation Details -->
+        <Style x:Key="DetailsTextStyle"
+               TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#26966B"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="TextTrimming" Value="None"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="TextAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="4,6"/>
+
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding ValidationStatus}"
+                             Value="Warning">
+                    <Setter Property="Foreground" Value="#C47B16"/>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding ValidationStatus}"
+                             Value="Error">
+                    <Setter Property="Foreground" Value="#D64545"/>
+                </DataTrigger>
+
+            </Style.Triggers>
+        </Style>
+
+        <!-- Validation Status Text -->
+        <Style x:Key="ValidationStatusTextStyle"
+               TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="#26966B"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding ValidationStatus}"
+                             Value="Warning">
+                    <Setter Property="Foreground" Value="#C47B16"/>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding ValidationStatus}"
+                             Value="Error">
+                    <Setter Property="Foreground" Value="#D64545"/>
+                </DataTrigger>
+
+            </Style.Triggers>
+        </Style>
+
+        <!-- Validation Status Background -->
+        <Style x:Key="ValidationStatusBackgroundStyle"
+               TargetType="{x:Type Border}">
+            <Setter Property="Background" Value="#EAF6F0"/>
+
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding ValidationStatus}"
+                             Value="Warning">
+                    <Setter Property="Background" Value="#FFF4E3"/>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding ValidationStatus}"
+                             Value="Error">
+                    <Setter Property="Background" Value="#FCEAEA"/>
+                </DataTrigger>
+
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+
+        <StackPanel>
+
+            <!-- Page Header -->
+            <StackPanel Margin="0,0,0,25">
+
+                <TextBlock Text="Import and review invoice data from an Excel file"
+                           FontSize="13"
+                           Foreground="{StaticResource SecondaryText}"
+                           Margin="0,7,0,0" Height="20" RenderTransformOrigin="0.5,1.846"/>
+
+            </StackPanel>
+
+            <!-- File Selection Card -->
+            <Border Background="White"
+                    CornerRadius="14"
+                    Padding="20"
+                    Margin="0,0,0,20">
+
+                <StackPanel>
+
+                    <TextBlock Text="Excel File"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource PrimaryText}"
+                               Margin="0,0,0,15"/>
+
+                    <Grid>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Background="#F8F6FB"
+                                BorderBrush="#EAE6F0"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="14"
+                                Margin="0,0,12,0">
+
+                            <TextBlock Text="{Binding FileName}"
+                                       Foreground="{StaticResource SecondaryText}"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"/>
+
+                        </Border>
+
+                        <Button Grid.Column="1"
+                                Content="Choose Excel File"
+                                Click="ChooseFile_Click"
+                                Background="{StaticResource Purple}"
+                                Foreground="White"
+                                FontWeight="SemiBold"
+                                Padding="20,12"
+                                BorderThickness="0"
+                                Cursor="Hand">
+
+                            <Button.Template>
+                                <ControlTemplate TargetType="{x:Type Button}">
+                                    <Border Background="{TemplateBinding Background}"
+                                            CornerRadius="8"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+
+                        </Button>
+
+                    </Grid>
+
+                    <TextBlock Text="Supported format: .xlsx"
+                               FontSize="11"
+                               Foreground="{StaticResource SecondaryText}"
+                               Margin="0,10,0,0"/>
+
+                    <!-- Read and Save Buttons -->
+                    <WrapPanel Margin="0,15,0,0">
+
+                        <Button Content="Read &amp; Validate File"
+                                Click="ReadFile_Click"
+                                Background="#EAE4F7"
+                                Foreground="{StaticResource Purple}"
+                                FontWeight="SemiBold"
+                                Padding="18,11"
+                                Margin="0,0,10,0"
+                                BorderThickness="0"
+                                Cursor="Hand">
+
+                            <Button.Template>
+                                <ControlTemplate TargetType="{x:Type Button}">
+                                    <Border Background="{TemplateBinding Background}"
+                                            CornerRadius="8"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+
+                        </Button>
+
+                        <Button Content="Save Selected Invoices"
+                                Click="SaveInvoices_Click"
+                                IsEnabled="{Binding HasSelectedInvoices}"
+                                Background="{StaticResource Purple}"
+                                Foreground="White"
+                                FontWeight="SemiBold"
+                                Padding="18,11"
+                                BorderThickness="0"
+                                Cursor="Hand">
+
+                            <Button.Template>
+                                <ControlTemplate TargetType="{x:Type Button}">
+                                    <Border Background="{TemplateBinding Background}"
+                                            CornerRadius="8"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+
+                        </Button>
+
+                    </WrapPanel>
+
+                </StackPanel>
+
+            </Border>
+
+            <!-- Validation Summary -->
+            <Grid Margin="0,0,0,20">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Valid -->
+                <Border Grid.Column="0"
+                        Background="White"
+                        CornerRadius="12"
+                        Padding="16"
+                        Margin="0,0,8,0">
+
+                    <StackPanel>
+                        <TextBlock Text="Valid Invoices"
+                                   FontSize="12"
+                                   Foreground="{StaticResource SecondaryText}"/>
+
+                        <TextBlock Text="{Binding ValidCount}"
+                                   FontSize="23"
+                                   FontWeight="Bold"
+                                   Foreground="#26966B"
+                                   Margin="0,6,0,0"/>
+                    </StackPanel>
+
+                </Border>
+
+                <!-- Warnings -->
+                <Border Grid.Column="1"
+                        Background="White"
+                        CornerRadius="12"
+                        Padding="16"
+                        Margin="4,0">
+
+                    <StackPanel>
+                        <TextBlock Text="Warnings"
+                                   FontSize="12"
+                                   Foreground="{StaticResource SecondaryText}"/>
+
+                        <TextBlock Text="{Binding WarningCount}"
+                                   FontSize="23"
+                                   FontWeight="Bold"
+                                   Foreground="#D99A32"
+                                   Margin="0,6,0,0"/>
+                    </StackPanel>
+
+                </Border>
+
+                <!-- Errors -->
+                <Border Grid.Column="2"
+                        Background="White"
+                        CornerRadius="12"
+                        Padding="16"
+                        Margin="8,0,0,0">
+
+                    <StackPanel>
+                        <TextBlock Text="Errors"
+                                   FontSize="12"
+                                   Foreground="{StaticResource SecondaryText}"/>
+
+                        <TextBlock Text="{Binding ErrorCount}"
+                                   FontSize="23"
+                                   FontWeight="Bold"
+                                   Foreground="#D9534F"
+                                   Margin="0,6,0,0"/>
+                    </StackPanel>
+
+                </Border>
+
+            </Grid>
+
+            <!-- Imported Data Card -->
+            <Border Background="White"
+                    CornerRadius="14"
+                    Padding="20">
+
+                <StackPanel>
+
+                    <!-- Table Header -->
+                    <Grid Margin="0,0,0,15">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Imported Invoices"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource PrimaryText}"
+                                   VerticalAlignment="Center"/>
+
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+
+                            <TextBlock Text="{Binding SelectedCount, StringFormat=Selected: {0}}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource Purple}"
+                                       Margin="0,0,15,0"/>
+
+                            <TextBlock Text="{Binding TotalInvoices, StringFormat={}{0} invoices}"
+                                       FontSize="12"
+                                       Foreground="{StaticResource SecondaryText}"/>
+
+                        </StackPanel>
+
+                    </Grid>
+
+                    <!-- Validation Legend -->
+                    <WrapPanel Margin="0,0,0,14"
+                               VerticalAlignment="Center">
+
+                        <TextBlock Text="●"
+                                   Foreground="#26966B"
+                                   FontSize="12"
+                                   Margin="0,0,5,0"/>
+
+                        <TextBlock Text="Valid"
+                                   Foreground="{StaticResource SecondaryText}"
+                                   FontSize="11"
+                                   Margin="0,0,18,0"/>
+
+                        <TextBlock Text="●"
+                                   Foreground="#D99A32"
+                                   FontSize="12"
+                                   Margin="0,0,5,0"/>
+
+                        <TextBlock Text="Warning"
+                                   Foreground="{StaticResource SecondaryText}"
+                                   FontSize="11"
+                                   Margin="0,0,18,0"/>
+
+                        <TextBlock Text="●"
+                                   Foreground="#D9534F"
+                                   FontSize="12"
+                                   Margin="0,0,5,0"/>
+
+                        <TextBlock Text="Error"
+                                   Foreground="{StaticResource SecondaryText}"
+                                   FontSize="11"/>
+
+                    </WrapPanel>
+
+                    <!-- Invoices Table -->
+                    <DataGrid x:Name="InvoicesGrid"
+                              ItemsSource="{Binding Invoices}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              CanUserResizeRows="False"
+                              CanUserReorderColumns="False"
+                              CanUserSortColumns="True"
+                              RowEditEnding="InvoicesGrid_RowEditEnding"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="None"
+                              RowHeaderWidth="0"
+                              Background="White"
+                              BorderBrush="{StaticResource TableBorder}"
+                              BorderThickness="1"
+                              ColumnHeaderStyle="{StaticResource TableHeaderStyle}"
+                              CellStyle="{StaticResource TableCellStyle}"
+                              RowStyle="{StaticResource TableRowStyle}"
+                              MinHeight="300"
+                              MaxHeight="550"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto"
+                              ScrollViewer.CanContentScroll="True">
+
+                        <DataGrid.Columns>
+
+                            <!-- Import Selection -->
+                            <DataGridCheckBoxColumn Header="Import"
+                                                    Width="75"
+                                                    IsReadOnly="False"
+                                                    Binding="{Binding IsSelectedForImport,
+                                                              Mode=TwoWay,
+                                                              UpdateSourceTrigger=PropertyChanged}">
+
+                                <DataGridCheckBoxColumn.ElementStyle>
+                                    <Style TargetType="{x:Type CheckBox}"
+                                           BasedOn="{StaticResource ImportCheckBoxStyle}"/>
+                                </DataGridCheckBoxColumn.ElementStyle>
+
+                                <DataGridCheckBoxColumn.EditingElementStyle>
+                                    <Style TargetType="{x:Type CheckBox}"
+                                           BasedOn="{StaticResource ImportCheckBoxStyle}"/>
+                                </DataGridCheckBoxColumn.EditingElementStyle>
+
+                            </DataGridCheckBoxColumn>
+
+                            <!-- Excel Row -->
+                            <DataGridTextColumn Header="Excel Row"
+                                                Binding="{Binding ExcelRowNumber}"
+                                                Width="90"
+                                                IsReadOnly="True"
+                                                ElementStyle="{StaticResource TableTextStyle}"/>
+
+                            <!-- Invoice Number -->
+                            <DataGridTextColumn Header="Invoice Number"
+                                                Binding="{Binding InvoiceNumber,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=LostFocus}"
+                                                Width="150"
+                                                MinWidth="150"
+                                                IsReadOnly="False"
+                                                ElementStyle="{StaticResource TableTextStyle}"/>
+
+                            <!-- Supplier -->
+                            <DataGridTextColumn Header="Supplier Name"
+                                                Binding="{Binding SupplierName,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=LostFocus}"
+                                                Width="180"
+                                                MinWidth="180"
+                                                IsReadOnly="False"
+                                                ElementStyle="{StaticResource TableTextStyle}"/>
+
+                            <!-- Date -->
+                            <DataGridTemplateColumn Header="Invoice Date"
+                                                    Width="150"
+                                                    IsReadOnly="False">
+
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding InvoiceDate,
+                                                  StringFormat={}{0:yyyy-MM-dd}}"
+                                                   Style="{StaticResource TableTextStyle}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <DatePicker SelectedDate="{Binding InvoiceDate,
+                                                           Mode=TwoWay,
+                                                           UpdateSourceTrigger=PropertyChanged}"
+                                                    SelectedDateFormat="Short"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+
+                            </DataGridTemplateColumn>
+
+                            <!-- Amount -->
+                            <DataGridTextColumn Header="Amount"
+                                                Binding="{Binding Amount,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=LostFocus,
+                                                    StringFormat={}{0:N2}}"
+                                                Width="120"
+                                                IsReadOnly="False"
+                                                ElementStyle="{StaticResource TableTextStyle}"/>
+
+                            <!-- Validation Status -->
+                            <DataGridTemplateColumn Header="Status"
+                                                    Width="120"
+                                                    IsReadOnly="True">
+
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="9,5"
+                                                CornerRadius="6"
+                                                HorizontalAlignment="Center"
+                                                Style="{StaticResource ValidationStatusBackgroundStyle}">
+
+                                            <TextBlock Text="{Binding ValidationStatus}"
+                                                       Style="{StaticResource ValidationStatusTextStyle}"/>
+
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                            <!-- Validation Details -->
+                            <DataGridTemplateColumn Header="Validation Details"
+                                                    Width="380"
+                                                    MinWidth="300"
+                                                    IsReadOnly="True">
+
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding ValidationDetails}"
+                                                   Style="{StaticResource DetailsTextStyle}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+
+                    <!-- Empty State -->
+                    <TextBlock Text="No invoices loaded. Choose an Excel file and click Read &amp; Validate File."
+                               Foreground="{StaticResource SecondaryText}"
+                               FontSize="12"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Margin="0,20,0,0">
+
+                        <TextBlock.Style>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding TotalInvoices}"
+                                                 Value="0">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+
+                            </Style>
+                        </TextBlock.Style>
+
+                    </TextBlock>
+
+                </StackPanel>
+
+            </Border>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>

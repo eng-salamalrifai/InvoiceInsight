@@ -1,0 +1,386 @@
+﻿<UserControl x:Class="InvoiceInsight.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+             FlowDirection="LeftToRight"
+             Background="#F5F3F9">
+
+    <UserControl.Resources>
+
+        <!-- Colors -->
+        <SolidColorBrush x:Key="PrimaryText" Color="#39334D"/>
+        <SolidColorBrush x:Key="SecondaryText" Color="#91899F"/>
+        <SolidColorBrush x:Key="Purple" Color="#65558F"/>
+        <SolidColorBrush x:Key="LightPurple" Color="#EAE4F7"/>
+        <SolidColorBrush x:Key="LightTeal" Color="#E2F1EF"/>
+        <SolidColorBrush x:Key="LightPink" Color="#F8E8F0"/>
+        <SolidColorBrush x:Key="LightPeach" Color="#F9EEDC"/>
+
+        <!-- Card Style -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="18"/>
+        </Style>
+
+        <!-- Section Title -->
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryText}"/>
+        </Style>
+
+        <!-- Secondary Text -->
+        <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{StaticResource SecondaryText}"/>
+        </Style>
+
+        <!-- Table Header -->
+        <Style x:Key="TableHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource SecondaryText}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False">
+
+        <StackPanel>
+
+            <!-- PAGE INTRO -->
+            <StackPanel>
+
+                <TextBlock Text="Overview"
+                           FontSize="25"
+                           FontWeight="Bold"
+                           Foreground="{StaticResource PrimaryText}"/>
+
+                <TextBlock Text="Monitor your invoices and financial activity."
+                           FontSize="12"
+                           Foreground="{StaticResource SecondaryText}"
+                           Margin="0,6,0,0"/>
+
+            </StackPanel>
+
+            <!-- KPI CARDS -->
+            <UniformGrid Columns="4"
+                         Margin="0,0,0,22">
+
+                <!-- Total Invoices -->
+                <Border Background="{StaticResource LightPurple}"
+                        CornerRadius="12"
+                        Padding="13"
+                        Margin="0,0,10,0">
+
+                    <StackPanel>
+                        <TextBlock Text="TOTAL INVOICES"
+                                   FontSize="10"
+                                   FontWeight="SemiBold"
+                                   Foreground="#8171AC"/>
+
+                        <TextBlock Text="{Binding TotalInvoices}"
+                                   FontSize="25"
+                                   FontWeight="Bold"
+                                   Foreground="#39334D"
+                                   Margin="0,10,0,4"/>
+
+                        <TextBlock Text="All recorded invoices"
+                                   FontSize="9"
+                                   Foreground="#91899F"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Total Value -->
+                <Border Background="{StaticResource LightTeal}"
+                        CornerRadius="12"
+                        Padding="13"
+                        Margin="0,0,10,0">
+
+                    <StackPanel>
+                        <TextBlock Text="TOTAL VALUE"
+                                   FontSize="10"
+                                   FontWeight="SemiBold"
+                                   Foreground="#438D83"/>
+
+                        <TextBlock Text="{Binding TotalValue}"
+                                   FontSize="23"
+                                   FontWeight="Bold"
+                                   Foreground="#39334D"
+                                   Margin="0,10,0,4"/>
+
+                        <TextBlock Text="Total invoice amount"
+                                   FontSize="9"
+                                   Foreground="#91899F"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Suppliers -->
+                <Border Background="{StaticResource LightPink}"
+                        CornerRadius="12"
+                        Padding="13"
+                        Margin="0,0,10,0">
+
+                    <StackPanel>
+                        <TextBlock Text="SUPPLIERS"
+                                   FontSize="10"
+                                   FontWeight="SemiBold"
+                                   Foreground="#B66C91"/>
+
+                        <TextBlock Text="{Binding TotalSuppliers}"
+                                   FontSize="25"
+                                   FontWeight="Bold"
+                                   Foreground="#39334D"
+                                   Margin="0,10,0,4"/>
+
+                        <TextBlock Text="Registered suppliers"
+                                   FontSize="9"
+                                   Foreground="#91899F"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Pending Alerts -->
+                <Border Background="{StaticResource LightPeach}"
+                        CornerRadius="12"
+                        Padding="13">
+
+                    <StackPanel>
+                        <TextBlock Text="PENDING ALERTS"
+                                   FontSize="10"
+                                   FontWeight="SemiBold"
+                                   Foreground="#B88742"/>
+
+                        <TextBlock Text="{Binding PendingAlerts}"
+                                   FontSize="25"
+                                   FontWeight="Bold"
+                                   Foreground="#39334D"
+                                   Margin="0,10,0,4"/>
+
+                        <TextBlock Text="Require your review"
+                                   FontSize="9"
+                                   Foreground="#91899F"/>
+                    </StackPanel>
+                </Border>
+
+            </UniformGrid>
+
+            <!-- MONTHLY INVOICE ACTIVITY -->
+            <Border Style="{StaticResource CardStyle}"
+                    Margin="0,0,0,18"
+                    MinHeight="255">
+
+                <StackPanel>
+
+                    <TextBlock Text="Monthly Invoice Activity"
+                               Style="{StaticResource SectionTitle}"/>
+
+                    <TextBlock Text="Total invoice amounts over the last 6 months"
+                               Style="{StaticResource SecondaryTextStyle}"
+                               Margin="0,5,0,12"/>
+
+                    <Border Height="190"
+                            Background="#FAF9FC"
+                            CornerRadius="8"
+                            Padding="8">
+
+                        <lvc:CartesianChart
+                            Series="{Binding MonthlySeries}"
+                            XAxes="{Binding MonthlyXAxes}"
+                            YAxes="{Binding MonthlyYAxes}"
+                            LegendPosition="Hidden"
+                            ZoomMode="None"/>
+
+                    </Border>
+
+                </StackPanel>
+            </Border>
+
+            <!-- SUPPLIER ANALYSIS -->
+            <Grid Margin="0,0,0,18">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Spending By Supplier -->
+                <Border Grid.Column="0"
+                        Style="{StaticResource CardStyle}"
+                        Margin="0,0,9,0"
+                        MinHeight="295">
+
+                    <StackPanel>
+
+                        <TextBlock Text="Spending by Supplier"
+                                   Style="{StaticResource SectionTitle}"/>
+
+                        <TextBlock Text="Total spending per supplier"
+                                   Style="{StaticResource SecondaryTextStyle}"
+                                   Margin="0,5,0,12"/>
+
+                        <Border Height="220"
+                                Background="#FAF9FC"
+                                CornerRadius="8"
+                                Padding="8">
+
+                            <lvc:CartesianChart
+                                Series="{Binding SpendingSeries}"
+                                XAxes="{Binding SpendingXAxes}"
+                                YAxes="{Binding SpendingYAxes}"
+                                LegendPosition="Hidden"
+                                ZoomMode="None"/>
+
+                        </Border>
+
+                    </StackPanel>
+                </Border>
+
+                <!-- Invoice Count By Supplier -->
+                <Border Grid.Column="1"
+                        Style="{StaticResource CardStyle}"
+                        Margin="9,0,0,0"
+                        MinHeight="295">
+
+                    <StackPanel>
+
+                        <TextBlock Text="Invoices by Supplier"
+                                   Style="{StaticResource SectionTitle}"/>
+
+                        <TextBlock Text="Number of invoices per supplier"
+                                   Style="{StaticResource SecondaryTextStyle}"
+                                   Margin="0,5,0,12"/>
+
+                        <Border Height="220"
+                                Background="#FAF9FC"
+                                CornerRadius="8"
+                                Padding="8">
+
+                            <lvc:CartesianChart
+                                Series="{Binding SupplierCountSeries}"
+                                XAxes="{Binding SupplierCountXAxes}"
+                                YAxes="{Binding SupplierCountYAxes}"
+                                LegendPosition="Hidden"
+                                ZoomMode="None"/>
+
+                        </Border>
+
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+
+            <!-- TOP 5 INVOICES -->
+            <Border Style="{StaticResource CardStyle}"
+                    Margin="0,0,0,18">
+
+                <StackPanel>
+
+                    <TextBlock Text="Top 5 Highest-Value Invoices"
+                               Style="{StaticResource SectionTitle}"/>
+
+                    <TextBlock Text="Highest-value invoices this month"
+                               Style="{StaticResource SecondaryTextStyle}"
+                               Margin="0,5,0,15"/>
+
+                    <!-- Table Header -->
+                    <Grid Background="#F7F5FA"
+                          Height="36">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.2*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                   Text="INVOICE NUMBER"
+                                   Style="{StaticResource TableHeader}"
+                                   Margin="10,0"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="SUPPLIER"
+                                   Style="{StaticResource TableHeader}"
+                                   Margin="10,0"/>
+
+                        <TextBlock Grid.Column="2"
+                                   Text="DATE"
+                                   Style="{StaticResource TableHeader}"
+                                   Margin="10,0"/>
+
+                        <TextBlock Grid.Column="3"
+                                   Text="AMOUNT"
+                                   Style="{StaticResource TableHeader}"
+                                   Margin="10,0"/>
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding TopInvoices}">
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+
+                                <Border BorderBrush="#F0EDF4"
+                                        BorderThickness="0,0,0,1"
+                                        Padding="10,12">
+
+                                    <Grid>
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1.2*"/>
+                                            <ColumnDefinition Width="2*"/>
+                                            <ColumnDefinition Width="1.2*"/>
+                                            <ColumnDefinition Width="1.2*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{Binding InvoiceNumber}"
+                                                   FontSize="10"
+                                                   Foreground="#65558F"
+                                                   VerticalAlignment="Center"/>
+
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding SupplierName}"
+                                                   FontSize="10"
+                                                   Foreground="#39334D"
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"/>
+
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding InvoiceDate, StringFormat={}{0:MMM dd, yyyy}}"
+                                                   FontSize="10"
+                                                   Foreground="#91899F"
+                                                   VerticalAlignment="Center"/>
+
+                                        <TextBlock Grid.Column="3"
+                                                   Text="{Binding Amount, StringFormat={}{0:N2} SYR}"                                                   FontSize="10"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="#39334D"
+                                                   VerticalAlignment="Center"/>
+
+                                    </Grid>
+                                </Border>
+
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+
+                    </ItemsControl>
+
+                    <TextBlock Text="No invoices found for the current month."
+                               FontSize="11"
+                               Foreground="#A49BB5"
+                               HorizontalAlignment="Center"
+                               Margin="10,18"
+                               Visibility="{Binding TopInvoicesEmptyVisibility}"/>
+
+                </StackPanel>
+            </Border>
+
+
+        </StackPanel>
+    </ScrollViewer>
+
+</UserControl>
